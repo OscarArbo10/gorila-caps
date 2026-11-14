@@ -1,67 +1,64 @@
-import Hero from '@/components/Hero';
-import Catalog from '@/components/Catalog';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import CapArt from '@/components/CapArt';
 import Footer from '@/components/Footer';
-import Reveal from '@/components/Reveal';
-import Logo from '@/components/Logo';
-import { getProducts } from '@/lib/products';
-import { getSettings, splitEmoji } from '@/lib/settings';
+import ProductActions from '@/components/ProductActions';
+import { formatPrice, getProduct } from '@/lib/products';
+import { getSettings } from '@/lib/settings';
 
 export const revalidate = 30;
 
-export default async function Home() {
-  const [products, s] = await Promise.all([getProducts(), getSettings()]);
-  const marquee = Array.isArray(s.marquee) && s.marquee.length > 0 ? s.marquee : ['GORILA CAPS', '🦍'];
-  const perks = Array.isArray(s.about_perks) ? s.about_perks : [];
-  const aboutLines = String(s.about_title || '').split('\n');
+export async function generateMetadata({ params }) {
+  const [p, s] = await Promise.all([getProduct(params.id), getSettings()]);
+  if (!p) return { title: `Producto no encontrado | ${s.store_name}` };
+  return {
+    title: `${p.name} | ${s.store_name}`,
+    description: p.description,
+    openGraph: { images: p.image_url ? [p.image_url] : [s.logo_url] },
+  };
+}
+
+export default async function ProductPage({ params }) {
+  const [product, s] = await Promise.all([getProduct(params.id), getSettings()]);
+  if (!product) notFound();
+  const perks = Array.isArray(s.product_perks) ? s.product_perks : [];
 
   return (
     <main>
-      <Hero />
-
-      <div className="marquee" aria-hidden="true">
-        <div className="marquee__track">
-          {[...marquee, ...marquee, ...marquee].map((t, i) => (
-            <span key={i}>{t}</span>
-          ))}
-        </div>
-      </div>
-
-      <Catalog products={products} />
-
-      <section id="manada" className="section section--dark manada">
-        <div className="container manada__grid">
-          <Reveal className="manada__art">
-            <div className="manada__circle">
-              <Logo variant="full" size={320} />
+      <section className="pd">
+        <div className="container">
+          <Link href="/#catalogo" className="back">← Volver al catálogo</Link>
+          <div className="pd__grid">
+            <div className="pd__media">
+              {product.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={product.image_url} alt={product.name} />
+              ) : (
+                <CapArt variant="dark" />
+              )}
             </div>
-          </Reveal>
-          <Reveal delay={120}>
-            {s.about_eyebrow && <p className="eyebrow">{s.about_eyebrow}</p>}
-            <h2 className="section__title section__title--light">
-              {aboutLines.map((line, idx) => (
-                <span key={idx}>
-                  {line}
-                  {idx < aboutLines.length - 1 && <br />}
-                </span>
-              ))}
-            </h2>
-            <p className="manada__text">{s.about_text}</p>
-            {perks.length > 0 && (
-              <ul className="perks">
-                {perks.map((p, idx) => {
-                  const { icon, text } = splitEmoji(p);
-                  return (
-                    <li key={idx}>
-                      <span>{icon}</span> {text}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </Reveal>
+            <div className="pd__info">
+              <span className="card__cat">{product.category}</span>
+              <h1 className="pd__title">{product.name}</h1>
+              <p className="pd__price">{formatPrice(product.price)}</p>
+              <p className="pd__desc">{product.description}</p>
+              <p className="pd__stock">
+                {Number(product.stock) > 0
+                  ? `✅ ${product.stock} disponibles`
+                  : '❌ Sin stock'}
+              </p>
+              <ProductActions product={product} />
+              {perks.length > 0 && (
+                <ul className="pd__perks">
+                  {perks.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
         </div>
       </section>
-
       <Footer />
     </main>
   );
