@@ -11,17 +11,19 @@ export default function ProductCard({ product, index = 0 }) {
   const ref = useRef(null);
   const soldOut = Number(product.stock) <= 0;
 
-  const onMove = (e) => {
+  const tilt = (clientX, clientY) => {
     const el = ref.current;
+    if (!el) return;
     const r = el.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - 0.5;
-    const y = (e.clientY - r.top) / r.height - 0.5;
-    el.style.setProperty('--rx', `${y * -10}deg`);
-    el.style.setProperty('--ry', `${x * 12}deg`);
+    const x = Math.max(-0.5, Math.min(0.5, (clientX - r.left) / r.width - 0.5));
+    const y = Math.max(-0.5, Math.min(0.5, (clientY - r.top) / r.height - 0.5));
+    el.style.setProperty('--rx', `${y * -12}deg`);
+    el.style.setProperty('--ry', `${x * 14}deg`);
     el.style.setProperty('--mx', `${(x + 0.5) * 100}%`);
     el.style.setProperty('--my', `${(y + 0.5) * 100}%`);
   };
-  const onLeave = () => {
+  const reset = () => {
+    if (!ref.current) return;
     ref.current.style.setProperty('--rx', '0deg');
     ref.current.style.setProperty('--ry', '0deg');
   };
@@ -30,8 +32,12 @@ export default function ProductCard({ product, index = 0 }) {
     <article
       ref={ref}
       className={`card ${index % 2 ? 'card--light' : 'card--dark'}`}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
+      style={{ '--i': index }}
+      onMouseMove={(e) => tilt(e.clientX, e.clientY)}
+      onMouseLeave={reset}
+      onTouchStart={(e) => e.touches?.[0] && tilt(e.touches[0].clientX, e.touches[0].clientY)}
+      onTouchMove={(e) => e.touches?.[0] && tilt(e.touches[0].clientX, e.touches[0].clientY)}
+      onTouchEnd={reset}
     >
       <Link href={`/producto/${product.id}`} className="card__media">
         {product.featured && <span className="tag tag--hot">🔥 Top</span>}

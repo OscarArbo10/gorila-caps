@@ -9,21 +9,44 @@ export default function Hero() {
   const s = useSettings();
   const ref = useRef(null);
 
-  // El logo se inclina siguiendo el cursor
+  // El logo se inclina con el cursor (PC), con el dedo o con el giroscopio (móvil)
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const onMove = (e) => {
-      const r = el.getBoundingClientRect();
-      const dx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width / 2)));
-      const dy = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (r.height / 2)));
-      el.style.setProperty('--tilt-x', `${dy * -10}deg`);
-      el.style.setProperty('--tilt-y', `${dx * 12}deg`);
-      el.style.setProperty('--glow-x', `${50 + dx * 20}%`);
-      el.style.setProperty('--glow-y', `${50 + dy * 20}%`);
+
+    const apply = (dx, dy) => {
+      el.style.setProperty('--tilt-x', `${dy * -12}deg`);
+      el.style.setProperty('--tilt-y', `${dx * 14}deg`);
+      el.style.setProperty('--glow-x', `${50 + dx * 25}%`);
+      el.style.setProperty('--glow-y', `${50 + dy * 25}%`);
     };
-    window.addEventListener('mousemove', onMove);
-    return () => window.removeEventListener('mousemove', onMove);
+
+    const onPointer = (clientX, clientY) => {
+      const r = el.getBoundingClientRect();
+      const dx = Math.max(-1, Math.min(1, (clientX - (r.left + r.width / 2)) / (r.width / 2)));
+      const dy = Math.max(-1, Math.min(1, (clientY - (r.top + r.height / 2)) / (r.height / 2)));
+      apply(dx, dy);
+    };
+
+    const onMouse = (e) => onPointer(e.clientX, e.clientY);
+    const onTouch = (e) => {
+      if (e.touches?.[0]) onPointer(e.touches[0].clientX, e.touches[0].clientY);
+    };
+    const onOrient = (e) => {
+      if (e.gamma == null || e.beta == null) return;
+      const dx = Math.max(-1, Math.min(1, e.gamma / 30));
+      const dy = Math.max(-1, Math.min(1, (e.beta - 45) / 30));
+      apply(dx, dy);
+    };
+
+    window.addEventListener('mousemove', onMouse, { passive: true });
+    window.addEventListener('touchmove', onTouch, { passive: true });
+    window.addEventListener('deviceorientation', onOrient, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', onMouse);
+      window.removeEventListener('touchmove', onTouch);
+      window.removeEventListener('deviceorientation', onOrient);
+    };
   }, []);
 
   const stats = [
