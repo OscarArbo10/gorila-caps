@@ -509,6 +509,7 @@ code { background: rgba(127,127,127,.15); padding: 2px 6px; border-radius: 6px; 
 .table tbody tr:hover { background: #fafafa; }
 .table tr.is-muted td { opacity: .5; }
 .table__product { display: flex; align-items: center; gap: 12px; }
+.table__mobile-meta { display: none; font-size: .82rem; color: var(--gray); margin-top: 2px; }
 .table__thumb { width: 52px; height: 52px; border-radius: 10px; overflow: hidden; border: 2px solid var(--black); display: grid; place-items: center; background: #eee; flex-shrink: 0; }
 .table__thumb img { width: 100%; height: 100%; object-fit: cover; }
 .table__actions { display: flex; gap: 8px; justify-content: flex-end; }
@@ -577,4 +578,82 @@ code { background: rgba(127,127,127,.15); padding: 2px 6px; border-radius: 6px; 
   .card__body { padding: 14px; }
   .section { padding: 70px 0; }
   .admin__user .muted { display: none; }
+
+  /* ---------- Admin adaptado a móvil ---------- */
+  .admin-card { padding: 26px 20px; }
+  .admin-card input, .modal input, .modal textarea, .settings__field input, .settings__field textarea, .search, .select {
+    font-size: 16px;
+  }
+  .admin__top { padding: 10px 0; }
+  .admin__top-inner { gap: 10px; }
+  .admin__tabs { order: 3; width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+  .admin__tab { text-align: center; padding: 10px 8px; }
+  .admin__user .btn--sm { padding: 7px 12px; font-size: .78rem; }
+  .admin__body { padding: 20px 0 90px; }
+
+  .stats { gap: 10px; margin-bottom: 22px; }
+  .stat { padding: 14px 16px; border-radius: 14px; }
+  .stat strong { font-size: 2.1rem; }
+
+  .admin__bar { align-items: stretch; }
+  .admin__bar-right { width: 100%; flex-direction: column; }
+  .admin__new-btn { width: 100%; }
+
+  /* Tabla -> tarjetas en móvil */
+  .table-wrap { background: transparent; border: none; border-radius: 0; overflow: visible; }
+  .table { min-width: 0; display: block; }
+  .table thead { display: none; }
+  .table tbody { display: grid; gap: 14px; }
+  .table tr {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+    background: var(--white); border: 2px solid var(--black); border-radius: 18px;
+    padding: 14px; box-shadow: 4px 4px 0 var(--black);
+  }
+  .table td { padding: 0; border: none; }
+  .table td.td-hide-sm { display: none; }
+  .table td.td-product {
+    grid-column: 1 / -1; padding-bottom: 10px; border-bottom: 1px solid var(--gray-light);
+  }
+  .table__mobile-meta { display: block; }
+  .table__thumb { width: 58px; height: 58px; }
+  .table td[data-label] {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    background: #f6f6f6; padding: 8px 6px; border-radius: 12px; text-align: center;
+  }
+  .table td[data-label]::before {
+    content: attr(data-label);
+    font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--gray); font-weight: 700;
+  }
+  .table__actions {
+    grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-top: 4px;
+  }
+  .table__actions .btn { width: 100%; padding: 11px; }
+
+  /* Modal producto tipo hoja inferior */
+  .modal { padding: 0; align-items: end; }
+  .modal__box {
+    width: 100%; max-height: 94vh; border-radius: 22px 22px 0 0; border-bottom: none;
+    padding: 20px 18px 24px;
+  }
+  .modal__foot {
+    position: sticky; bottom: -24px; background: var(--white);
+    padding: 12px 0 4px; border-top: 1px solid var(--gray-light);
+    display: grid; grid-template-columns: 1fr 1.3fr;
+  }
+  .form-image__preview { max-width: 180px; margin: 0 auto; width: 100%; }
+
+  /* Editor de textos en móvil */
+  .settings__head { flex-direction: column; align-items: stretch; }
+  .settings__actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+  .settings__actions .btn { width: 100%; padding: 12px 10px; font-size: .85rem; }
+  .settings__group { padding: 16px; border-radius: 16px; }
+  .settings__image { flex-direction: column; align-items: stretch; }
+  .settings__image img { width: 96px; height: 96px; margin: 0 auto; }
+  .settings__image-controls { flex-direction: column; align-items: stretch; min-width: 0; }
+  .settings__foot {
+    position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 30;
+  }
+  .settings__foot .btn {
+    width: 100%; box-shadow: 0 10px 26px rgba(0,0,0,.35); border: 2px solid var(--white);
+  }
 }

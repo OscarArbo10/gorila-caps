@@ -88,30 +88,30 @@ export default function AdminDashboard({ session }) {
       <header className="admin__top">
         <div className="container admin__top-inner">
           <Link href="/" className="brand">
-            <Logo size={42} className="brand__logo" />
+            <Logo size={40} className="brand__logo" />
             <span className="brand__text">GORILA CAPS <span>ADMIN</span></span>
           </Link>
+
+          <div className="admin__user">
+            <span className="muted">{session.user.email}</span>
+            <Link href="/" className="btn btn--ghost btn--sm" target="_blank">Tienda ↗</Link>
+            <button className="btn btn--light btn--sm" onClick={() => supabase.auth.signOut()}>
+              Salir
+            </button>
+          </div>
 
           <div className="admin__tabs">
             <button
               className={`admin__tab ${tab === 'products' ? 'is-active' : ''}`}
               onClick={() => setTab('products')}
             >
-              Catálogo
+              🧢 Catálogo
             </button>
             <button
               className={`admin__tab ${tab === 'settings' ? 'is-active' : ''}`}
               onClick={() => setTab('settings')}
             >
-              Textos y marca
-            </button>
-          </div>
-
-          <div className="admin__user">
-            <span className="muted">{session.user.email}</span>
-            <Link href="/" className="btn btn--ghost btn--sm" target="_blank">Ver tienda</Link>
-            <button className="btn btn--light btn--sm" onClick={() => supabase.auth.signOut()}>
-              Salir
+              ✏️ Textos y marca
             </button>
           </div>
         </div>
@@ -140,11 +140,11 @@ export default function AdminDashboard({ session }) {
               <div className="admin__bar-right">
                 <input
                   className="search"
-                  placeholder="Buscar..."
+                  placeholder="Buscar gorra..."
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                 />
-                <button className="btn btn--dark" onClick={() => setEditing({})}>
+                <button className="btn btn--dark admin__new-btn" onClick={() => setEditing({})}>
                   + Nueva gorra
                 </button>
               </div>
@@ -171,7 +171,7 @@ export default function AdminDashboard({ session }) {
                   <tbody>
                     {filtered.map((p, i) => (
                       <tr key={p.id} className={!p.active ? 'is-muted' : ''}>
-                        <td>
+                        <td className="td-product">
                           <div className="table__product">
                             <div className="table__thumb">
                               {p.image_url ? (
@@ -181,22 +181,29 @@ export default function AdminDashboard({ session }) {
                                 <CapArt variant={i % 2 ? 'light' : 'dark'} />
                               )}
                             </div>
-                            <strong>{p.name}</strong>
+                            <div>
+                              <strong>{p.name}</strong>
+                              <span className="table__mobile-meta">
+                                {p.category} · {formatPrice(p.price)}
+                              </span>
+                            </div>
                           </div>
                         </td>
-                        <td>{p.category}</td>
-                        <td>{formatPrice(p.price)}</td>
-                        <td>
-                          <span className={`pill ${p.stock <= 0 ? 'pill--out' : ''}`}>{p.stock}</span>
+                        <td data-label="Categoría" className="td-hide-sm">{p.category}</td>
+                        <td data-label="Precio" className="td-hide-sm">{formatPrice(p.price)}</td>
+                        <td data-label="Stock">
+                          <span className={`pill ${p.stock <= 0 ? 'pill--out' : ''}`}>
+                            {p.stock <= 0 ? 'Agotado (0)' : p.stock}
+                          </span>
                         </td>
-                        <td>
+                        <td data-label="Visible">
                           <button
                             className={`switch ${p.active ? 'is-on' : ''}`}
                             onClick={() => toggle(p, 'active')}
                             aria-label="Visible"
                           />
                         </td>
-                        <td>
+                        <td data-label="Destacado">
                           <button
                             className={`switch ${p.featured ? 'is-on' : ''}`}
                             onClick={() => toggle(p, 'featured')}
