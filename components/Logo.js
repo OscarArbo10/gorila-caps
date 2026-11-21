@@ -14,7 +14,7 @@ export default function Logo({ variant = 'mark', size = 48, className = '' }) {
       width={size}
       height={size}
       className={`logo logo--${variant} ${className}`}
-      style={{ width: size, height: size }}
+      style={{ '--logo-size': `${size}px` }}
     />
   );
 }

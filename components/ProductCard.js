@@ -10,6 +10,7 @@ export default function ProductCard({ product, index = 0 }) {
   const { add } = useCart();
   const ref = useRef(null);
   const soldOut = Number(product.stock) <= 0;
+  const isDark = Boolean(product.featured);
 
   const tilt = (clientX, clientY) => {
     const el = ref.current;
@@ -31,7 +32,7 @@ export default function ProductCard({ product, index = 0 }) {
   return (
     <article
       ref={ref}
-      className={`card ${index % 2 ? 'card--light' : 'card--dark'}`}
+      className={`card ${isDark ? 'card--dark' : 'card--light'}`}
       style={{ '--i': index }}
       onMouseMove={(e) => tilt(e.clientX, e.clientY)}
       onMouseLeave={reset}
@@ -40,13 +41,17 @@ export default function ProductCard({ product, index = 0 }) {
       onTouchEnd={reset}
     >
       <Link href={`/producto/${product.id}`} className="card__media">
-        {product.featured && <span className="tag tag--hot">🔥 Top</span>}
-        {soldOut && <span className="tag tag--out">Agotado</span>}
+        {(product.featured || soldOut) && (
+          <div className="card__tags">
+            {product.featured ? <span className="tag tag--hot">🔥 Top</span> : <span />}
+            {soldOut && <span className="tag tag--out">Agotado</span>}
+          </div>
+        )}
         {product.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={product.image_url} alt={product.name} loading="lazy" />
         ) : (
-          <CapArt variant={index % 2 ? 'dark' : 'light'} />
+          <CapArt variant={isDark ? 'light' : 'dark'} />
         )}
       </Link>
       <div className="card__body">
