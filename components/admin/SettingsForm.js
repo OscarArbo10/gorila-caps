@@ -43,11 +43,23 @@ export default function SettingsForm({ onSaved, notify }) {
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true);
+    const cleaned = { ...values };
+    for (const group of SETTINGS_SCHEMA) {
+      for (const f of group.fields) {
+        if (f.type === 'list' && typeof cleaned[f.key] === 'string') {
+          cleaned[f.key] = cleaned[f.key]
+            .split('\n')
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }
+    }
     const { error } = await supabase
       .from('settings')
-      .upsert({ id: 1, data: values, updated_at: new Date().toISOString() });
+      .upsert({ id: 1, data: cleaned, updated_at: new Date().toISOString() });
     setBusy(false);
     if (error) return notify('Error: ' + error.message);
+    setValues(cleaned);
     onSaved();
   };
 
@@ -116,15 +128,7 @@ export default function SettingsForm({ onSaved, notify }) {
                     <textarea
                       rows={4}
                       value={text}
-                      onChange={(e) =>
-                        set(
-                          f.key,
-                          e.target.value
-                            .split('\n')
-                            .map((s) => s.trim())
-                            .filter(Boolean)
-                        )
-                      }
+                      onChange={(e) => set(f.key, e.target.value)}
                     />
                   </label>
                 );

@@ -32,7 +32,7 @@ export default function CartDrawer() {
     ]
       .filter((l) => l !== false && l !== undefined)
       .join('\n');
-    window.open(whatsappLink(s.whatsapp_number, msg), '_blank');
+    window.open(whatsappLink(s.whatsapp_number, msg), '_blank', 'noopener,noreferrer');
   };
 
   return (

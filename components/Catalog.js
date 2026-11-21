@@ -1,32 +1,40 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ProductCard from './ProductCard';
 import Reveal from './Reveal';
+import { useCart } from './CartProvider';
 import { useSettings } from './SettingsProvider';
+
+const ALL_CATEGORY = '__all__';
 
 export default function Catalog({ products }) {
   const s = useSettings();
+  const { sync } = useCart();
   const allLabel = s.catalog_all || 'Todas';
-  const [cat, setCat] = useState(allLabel);
+  const [cat, setCat] = useState(ALL_CATEGORY);
   const [q, setQ] = useState('');
   const [sort, setSort] = useState('featured');
 
+  useEffect(() => {
+    sync(products);
+  }, [products, sync]);
+
   const categories = useMemo(
-    () => [allLabel, ...Array.from(new Set(products.map((p) => p.category)))],
-    [products, allLabel]
+    () => [ALL_CATEGORY, ...Array.from(new Set(products.map((p) => p.category)))],
+    [products]
   );
 
   const list = useMemo(() => {
     let l = products.filter(
       (p) =>
-        (cat === allLabel || p.category === cat) &&
+        (cat === ALL_CATEGORY || p.category === cat) &&
         (p.name + ' ' + (p.description || '')).toLowerCase().includes(q.toLowerCase())
     );
     if (sort === 'price-asc') l = [...l].sort((a, b) => a.price - b.price);
     if (sort === 'price-desc') l = [...l].sort((a, b) => b.price - a.price);
     return l;
-  }, [products, cat, q, sort, allLabel]);
+  }, [products, cat, q, sort]);
 
   return (
     <section id="catalogo" className="section section--light">
@@ -44,7 +52,7 @@ export default function Catalog({ products }) {
                 className={`chip ${cat === c ? 'is-active' : ''}`}
                 onClick={() => setCat(c)}
               >
-                {c}
+                {c === ALL_CATEGORY ? allLabel : c}
               </button>
             ))}
           </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { deleteStorageImage, supabase } from '@/lib/supabase';
 import { CATEGORIES } from '@/lib/products';
 import CapArt from '@/components/CapArt';
 
@@ -65,6 +65,9 @@ export default function ProductForm({ product, onClose, onSaved }) {
     const { error } = await query;
     setBusy(false);
     if (error) return setError(error.message);
+    if (isEdit && product.image_url && product.image_url !== payload.image_url) {
+      await deleteStorageImage(product.image_url);
+    }
     onSaved();
   };
 
@@ -116,7 +119,7 @@ export default function ProductForm({ product, onClose, onSaved }) {
                 <input
                   type="number"
                   min="0"
-                  step="100"
+                  step="1"
                   required
                   value={form.price}
                   onChange={(e) => set('price', e.target.value)}

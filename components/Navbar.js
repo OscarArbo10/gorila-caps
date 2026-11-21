@@ -31,8 +31,10 @@ export default function Navbar() {
 
   if (pathname?.startsWith('/admin')) return null;
 
+  const isLightPage = pathname !== '/';
+
   return (
-    <header className={`navbar ${scrolled || menuOpen ? 'navbar--scrolled' : ''}`}>
+    <header className={`navbar ${scrolled || menuOpen || isLightPage ? 'navbar--scrolled' : ''}`}>
       <div className="container navbar__inner">
         <Link href="/" className="brand" onClick={() => setMenuOpen(false)}>
           <Logo size={46} className="brand__logo" />

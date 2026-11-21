@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { deleteStorageImage, supabase } from '@/lib/supabase';
 import { formatPrice } from '@/lib/products';
 import Logo from '@/components/Logo';
 import CapArt from '@/components/CapArt';
@@ -16,11 +16,17 @@ export default function AdminDashboard({ session }) {
   const [editing, setEditing] = useState(null);
   const [q, setQ] = useState('');
   const [toast, setToast] = useState('');
+  const toastTimer = useRef(null);
 
-  const notify = (msg) => {
+  const notify = useCallback((msg) => {
     setToast(msg);
-    setTimeout(() => setToast(''), 2500);
-  };
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(''), 2500);
+  }, []);
+
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }, []);
 
   const revalidate = async () => {
     try {
@@ -40,7 +46,7 @@ export default function AdminDashboard({ session }) {
     if (error) notify('Error: ' + error.message);
     setProducts(data || []);
     setLoading(false);
-  }, []);
+  }, [notify]);
 
   useEffect(() => {
     load();
@@ -71,6 +77,7 @@ export default function AdminDashboard({ session }) {
     if (!confirm(`¿Eliminar "${p.name}"? Esta acción no se puede deshacer.`)) return;
     const { error } = await supabase.from('products').delete().eq('id', p.id);
     if (error) return notify('Error: ' + error.message);
+    if (p.image_url) await deleteStorageImage(p.image_url);
     setProducts((prev) => prev.filter((x) => x.id !== p.id));
     notify('Producto eliminado');
     revalidate();

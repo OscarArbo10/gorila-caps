@@ -1,16 +1,15 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@supabase/supabase-js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY, isSupabaseConfigured } from '@/lib/supabase';
 
 // Revalida las páginas públicas cuando un admin modifica el catálogo.
 export async function POST(request) {
-  const token = (request.headers.get('authorization') || '').replace('Bearer ', '');
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!token || !url || !key) {
+  const token = (request.headers.get('authorization') || '').replace(/^Bearer\s+/i, '').trim();
+  if (!token || !isSupabaseConfigured) {
     return Response.json({ ok: false }, { status: 401 });
   }
 
-  const supabase = createClient(url, key, {
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     global: { headers: { Authorization: `Bearer ${token}` } },
     auth: { persistSession: false },
   });

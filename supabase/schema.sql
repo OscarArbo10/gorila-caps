@@ -8,14 +8,17 @@ create table if not exists public.products (
   id           uuid primary key default gen_random_uuid(),
   name         text not null,
   description  text default '',
-  price        numeric(12,2) not null default 0,
+  price        numeric(12,2) not null default 0 check (price >= 0),
   category     text not null default 'Snapback',
   image_url    text,
-  stock        integer not null default 0,
+  stock        integer not null default 0 check (stock >= 0),
   featured     boolean not null default false,
   active       boolean not null default true,
   created_at   timestamptz not null default now()
 );
+
+create index if not exists products_catalog_idx
+  on public.products (active, featured desc, created_at desc);
 
 -- 2) Tabla de administradores (solo los usuarios aquí listados pueden editar)
 create table if not exists public.admins (

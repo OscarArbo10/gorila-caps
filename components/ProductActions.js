@@ -23,7 +23,7 @@ export default function ProductActions({ product }) {
       '',
       s.order_footer,
     ].join('\n');
-    window.open(whatsappLink(s.whatsapp_number, msg), '_blank');
+    window.open(whatsappLink(s.whatsapp_number, msg), '_blank', 'noopener,noreferrer');
   };
 
   if (soldOut) {
